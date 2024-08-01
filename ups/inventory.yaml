@@ -1,0 +1,10 @@
+ups:
+    hosts:
+        ups-living-room.local:
+            name: "living-room-ups"
+            description: Living room UPS (bound to TV)
+            ansible_user: "ups"
+        ups-den.local:
+            name: "den-ups"
+            description: Den UPS (bound to monitor)
+            ansible_user: "ups"

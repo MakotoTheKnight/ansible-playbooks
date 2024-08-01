@@ -1,0 +1,64 @@
+# Follows the steps from https://perfecto25.medium.com/monitor-cyberpower-ups-devices-with-raspberry-pi-99559725dbb8
+# Adds fix from https://www.reddit.com/r/homelab/comments/ibugwg/raspberry_pi_nut_ups_monitoring_problems/
+
+---
+- hosts: ups
+  tasks:
+    - name: Install Network Utility Tools
+      ansible.builtin.apt:
+        pkg:
+          - nut
+          - nut-client
+          - nut-server
+        update_cache: yes
+    - name: Reboot
+      ansible.builtin.reboot:
+        
+    - name: Create folder for Network Utility Tools
+      ansible.builtin.file:
+        path:  /var/run/nut
+        state: directory
+        owner: nut
+        group: nut
+        mode: '0744'
+    
+    - name: Copy udevd rules to the right location
+      ansible.builtin.copy:
+        src: /lib/udev/rules.d/62-nut-usbups.rules
+        dest: /etc/udev/rules.d
+        remote_src: yes
+        
+    - name: Set Network Utility Tools mode to standalone
+      ansible.builtin.copy:
+        src: local-nut.conf
+        dest: /etc/nut/nut.conf
+
+    - name: Copy UPS configuration templates to device
+      block:
+        - ansible.builtin.template:
+            src: ups.j2
+            dest: /etc/nut/ups.conf
+        - ansible.builtin.template:
+            src: upsmon.j2
+            dest: /etc/nut/upsmon.conf
+        - ansible.builtin.template:
+            src: upsd.j2
+            dest: /etc/nut/upsd.conf
+        - ansible.builtin.copy:
+            src: local-upsd.users
+            dest: /etc/nut/upsd.users    
+    
+    - name: Restart the Network Utility Tools service
+      ansible.builtin.systemd_service:
+        name: nut-client.service
+        state: restarted
+    
+    - name: Restart driver
+      ansible.builtin.shell: upsdrvctl stop && upsdrvctl start
+      register: driver_restart
+      failed_when: driver_restart.rc != 0
+        
+    - name: Validate that metrics come back (blind check)
+      ansible.builtin.shell: "upsc {{ name }}@localhost"
+      register: uspc_check
+      failed_when: uspc_check.rc != 0
