@@ -57,6 +57,7 @@
       ansible.builtin.shell: upsdrvctl stop && upsdrvctl start
       register: driver_restart
       failed_when: driver_restart.rc != 0
+      tags: never
         
     - name: Validate that metrics come back (blind check)
       ansible.builtin.shell: "upsc {{ name }}@localhost"
