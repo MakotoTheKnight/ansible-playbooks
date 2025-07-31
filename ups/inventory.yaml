@@ -1,10 +1,12 @@
 ups:
-    hosts:
-        ups-living-room.local:
-            name: "living-room-ups"
-            description: Living room UPS (bound to TV)
-            ansible_user: "ups"
-        ups-den.local:
-            name: "den-ups"
-            description: Den UPS (bound to monitor)
-            ansible_user: "ups"
+  hosts:
+    nut1.makototheknight.com:
+      ansible_host: '10.0.0.20'
+      ups_name: "nut1"
+      description: UPS 1 (Pico Cluster, WiFi)
+      ansible_user: "nut"
+    nut2.makototheknight.com:
+      ansible_host: '10.0.0.22'
+      ups_name: "nut2"
+      description: UPS 2 (NAS)
+      ansible_user: "nut"

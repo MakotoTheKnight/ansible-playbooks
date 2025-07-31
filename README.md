@@ -1,4 +1,4 @@
-# Ansible Playbooks to set up my laptops
+# Ansible Playbooks to set up systems
 
 Set up Python environment from supplied requirements.txt
 
